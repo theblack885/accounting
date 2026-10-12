@@ -1,0 +1,4 @@
+window.APP_CONFIG = {
+  SUPABASE_URL: "https://XXXXXXXX.supabase.co",
+  SUPABASE_ANON_KEY: "YAHAN-ANON-PUBLIC-KEY-PASTE-KARO"
+};
