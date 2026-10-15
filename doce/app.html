@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account Book — Web App</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6ff;--bg2:#fff;--card:rgba(255,255,255,.85);--line:rgba(17,22,40,.10);--text:#111628;--muted:#50587a;--p:#3b5bdb;--p2:#8a5cff;--g:#0ca789;--r:#d6334a}
+:root[data-theme=dark]{--bg:#0b0f1a;--bg2:#121827;--card:rgba(24,31,52,.8);--line:rgba(255,255,255,.09);--text:#e8ecf8;--muted:#a9b3cc;--p:#8aa4ff;--p2:#a98bff;--g:#4de1c1;--r:#ff7a8a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.aurora i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.35}
+.aurora i:nth-child(1){width:420px;height:420px;background:var(--p);top:-120px;left:-100px}
+.aurora i:nth-child(2){width:380px;height:380px;background:var(--p2);bottom:-100px;right:-100px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;max-width:760px;margin:auto}
+.logo{display:flex;gap:10px;align-items:center;font-weight:800;color:inherit;text-decoration:none}
+.logo b{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
+.ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;font-size:16px;margin-left:6px}
+main{max-width:760px;margin:auto;padding:0 16px 160px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px}
+.stack>*+*{margin-top:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hero{border-radius:26px;padding:22px;color:#fff;background:linear-gradient(135deg,#4f6bff,#8a5cff 60%,#19c3a6)}
+.hero small{opacity:.85}.hero h2{font-size:32px;letter-spacing:-.03em;margin:4px 0}
+.lbl{font-size:12px;color:var(--muted);font-weight:600}
+.big{font-size:20px;font-weight:800;margin-top:4px}
+.up{color:var(--g)}.down{color:var(--r)}
+h3{font-size:18px;margin:6px 0 2px}
+.item{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.item em{display:block;font-style:normal;font-size:12px;color:var(--muted)}
+.tag{font-size:11px;font-weight:700;color:var(--p)}
+.ln{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.ln.b{font-weight:800}
+.nav{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 24px));display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px;backdrop-filter:blur(18px);z-index:20}
+.nav button{flex:1;border:0;background:none;color:var(--muted);padding:11px 4px;border-radius:999px;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer}
+.nav button.on{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
+.fab{position:fixed;right:18px;bottom:84px;z-index:20;border:0;border-radius:999px;padding:15px 22px;color:#fff;font-weight:700;font-size:15px;font-family:inherit;background:linear-gradient(135deg,var(--p),var(--p2));box-shadow:0 14px 34px -10px var(--p);cursor:pointer}
+.btn{border:0;border-radius:999px;padding:13px 22px;color:#fff;font-weight:700;font-size:15px;font-family:inherit;background:linear-gradient(135deg,var(--p),var(--p2));cursor:pointer}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--text)}
+.btn.sm{padding:7px 14px;font-size:12px}
+input,select{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:16px;font-family:inherit;margin-top:6px}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:12px}
+.modal{position:fixed;inset:0;background:rgba(5,8,18,.55);display:grid;place-items:end center;z-index:50;backdrop-filter:blur(4px)}
+.sheet{width:min(520px,100%);max-height:90vh;overflow:auto;background:var(--bg2);border:1px solid var(--line);border-radius:28px 28px 0 0;padding:22px}
+.row{display:flex;gap:10px;margin-top:18px}.row>*{flex:1}
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow:auto}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--muted);padding:9px 16px;border-radius:999px;font-weight:600;font-size:13px;font-family:inherit;white-space:nowrap;cursor:pointer}
+.tabs button.on{background:var(--p);color:#fff;border-color:var(--p)}
+.auth{max-width:420px;margin:10vh auto;padding:0 16px}
+.err{color:var(--r);font-size:13px;margin-top:12px;min-height:18px}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:14px;z-index:99}
+.empty{color:var(--muted);text-align:center;padding:24px}
+.fatal{max-width:560px;margin:12vh auto;padding:0 16px}
+</style>
+</head>
+<body>
+<div class="aurora"><i></i><i></i></div>
+<div id="root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+var $ = function(s){ return document.querySelector(s); };
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function inr(n){ return '₹' + Number(n).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fdate(d){ return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}); }
+function toast(m){ var t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(function(){t.remove()},3500); }
+function fatal(title, lines){
+  document.getElementById('root').innerHTML = '<div class="fatal"><div class="card"><h3>'+title+'</h3><p style="margin-top:10px;color:var(--muted);line-height:1.6">'+lines+'</p></div></div>';
+}
+
+var cfg = window.APP_CONFIG;
+var sb = null;
+if (!cfg) {
+  fatal('config.js nahi mili', 'Ye file <b>app.html</b> ke bagal me, usi folder me honi chahiye. Naam bilkul <b>config.js</b> hona chahiye.');
+} else if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY || cfg.SUPABASE_URL.indexOf('APNA') > -1 || cfg.SUPABASE_ANON_KEY.indexOf('APNI') > -1) {
+  fatal('config.js me URL/key daalo', 'config.js me abhi bhi placeholder likha hai. Supabase ka Project URL aur anon/publishable key paste karo.');
+} else if (!window.supabase) {
+  fatal('Supabase load nahi hua', 'Internet check karo ya page dobara kholo (Ctrl+Shift+R).');
+} else {
+  sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+}
+
+var accounts = [], vouchers = [], tab = 'home', rtab = 'tb';
+var TYPES = ['ASSET','LIABILITY','INCOME','EXPENSE','CAPITAL'];
+var VTYPES = ['Receipt','Payment','Sales','Purchase','Journal','Contra'];
+var LABELS = {
+  Receipt:['Paisa kahan aaya (Debit)','Kisse mila (Credit)'],
+  Payment:['Kisko diya (Debit)','Kahan se gaya (Credit)'],
+  Sales:['Customer (Debit)','Sales account (Credit)'],
+  Purchase:['Purchase account (Debit)','Supplier (Credit)'],
+  Journal:['Debit account','Credit account'],
+  Contra:['Cash/Bank me (Debit)','Cash/Bank se (Credit)']
+};
+
+/* theme */
+var th = 'dark';
+try { th = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch(e){}
+function setTheme(t){ th=t; document.documentElement.dataset.theme=t; try{localStorage.setItem('theme',t)}catch(e){} var b=$('#thm'); if(b) b.textContent = t==='dark'?'🌙':'☀️'; }
+setTheme(th);
+
+/* auth */
+function showAuth(msg){
+  $('#root').innerHTML =
+  '<div class="auth"><div class="card">'+
+    '<a class="logo" href="index.html" style="margin-bottom:18px"><b>₹</b> Account Book</a>'+
+    '<h3>Login / Naya account</h3>'+
+    '<label>Email<input id="em" type="email" autocomplete="email"></label>'+
+    '<label>Password (kam se kam 6 akshar)<input id="pw" type="password" autocomplete="current-password"></label>'+
+    '<div class="err" id="aerr">'+esc(msg||'')+'</div>'+
+    '<div class="row"><button class="btn" onclick="login()">Login</button><button class="btn ghost" onclick="signup()">Sign up</button></div>'+
+  '</div></div>';
+}
+async function login(){
+  $('#aerr').textContent = 'Ruko...';
+  var r = await sb.auth.signInWithPassword({email:$('#em').value.trim(), password:$('#pw').value});
+  if (r.error) return $('#aerr').textContent = r.error.message;
+  enter();
+}
+async function signup(){
+  $('#aerr').textContent = 'Ruko...';
+  var r = await sb.auth.signUp({email:$('#em').value.trim(), password:$('#pw').value});
+  if (r.error) return $('#aerr').textContent = r.error.message;
+  if (!r.data.session) return $('#aerr').textContent = 'Email par confirm link bheja hai. Confirm karke login karo.';
+  enter();
+}
+async function logout(){ await sb.auth.signOut(); accounts=[]; vouchers=[]; showAuth(); }
+
+/* data */
+async function enter(){ shell(); await load(); }
+
+async function load(){
+  var a = await sb.from('accounts').select('*').order('name');
+  var v = await sb.from('vouchers').select('*').order('date',{ascending:false}).order('created_at',{ascending:false});
+  if (a.error || v.error) {
+    var m = (a.error || v.error).message;
+    $('#main').innerHTML = '<div class="card"><b>Database error</b><p style="margin-top:8px;color:var(--muted)">'+esc(m)+'<br><br>Agar "relation ... does not exist" likha hai to schema.sql Supabase SQL Editor me dobara Run karo.</p></div>';
+    return;
+  }
+  accounts = a.data; vouchers = v.data;
+  if (!accounts.length) {
+    var ins = await sb.from('accounts').insert([
+      {name:'Cash',type:'ASSET'},{name:'Bank',type:'ASSET'},{name:'Sales',type:'INCOME'},
+      {name:'Purchase',type:'EXPENSE'},{name:'Rent',type:'EXPENSE'},{name:'Salary',type:'EXPENSE'},{name:'Capital',type:'CAPITAL'}
+    ]);
+    if (ins.error) return toast(ins.error.message);
+    return load();
+  }
+  render();
+}
+
+function balances(){
+  return accounts.map(function(a){
+    var d = 0, c = 0;
+    vouchers.forEach(function(v){ if (v.debit_id === a.id) d += +v.amount; if (v.credit_id === a.id) c += +v.amount; });
+    var dn = a.type === 'ASSET' || a.type === 'EXPENSE';
+    var net = dn ? +a.opening + d - c : +a.opening + c - d;
+    return Object.assign({}, a, {net:net, dr: dn ? net : -net});
+  });
+}
+function nameOf(id){ var a = accounts.find(function(x){return x.id===id}); return a ? a.name : '?'; }
+function sum(arr){ return arr.reduce(function(s,x){ return s + x.net; }, 0); }
+
+/* shell */
+function shell(){
+  $('#root').innerHTML =
+  '<div class="top"><a class="logo" href="index.html"><b>₹</b> Account Book</a>'+
+    '<div><button class="ib" id="thm" onclick="setTheme(th===\'dark\'?\'light\':\'dark\')"></button>'+
+    '<button class="ib" onclick="logout()" title="Logout">⎋</button></div></div>'+
+  '<main id="main" class="stack"><div class="empty">Load ho raha hai...</div></main>'+
+  '<button class="fab" id="fab" onclick="openAdd()">＋ Entry</button>'+
+  '<div class="nav" id="nav"></div>';
+  setTheme(th);
+}
+function go(k){ tab = k; render(); }
+function setR(k){ rtab = k; render(); }
+function nav(){
+  var items = [['home','🏠 Home'],['entries','🧾 Entries'],['accounts','👥 Accounts'],['reports','📊 Reports']];
+  $('#nav').innerHTML = items.map(function(i){ return '<button class="'+(tab===i[0]?'on':'')+'" onclick="go(\''+i[0]+'\')">'+i[1]+'</button>'; }).join('');
+  $('#fab').textContent = tab === 'accounts' ? '＋ Account' : '＋ Entry';
+}
+function render(){
+  nav();
+  var b = balances(), m = $('#main');
+  if (tab === 'home') m.innerHTML = home(b);
+  else if (tab === 'entries') m.innerHTML = '<h3>Day Book</h3>' + (vouchers.length ? vouchers.map(function(v){return vcard(v,true)}).join('') : '<div class="empty">Koi entry nahi hai.</div>');
+  else if (tab === 'accounts') m.innerHTML = '<h3>Accounts & Parties</h3>' + b.map(function(a){
+    return '<div class="card item" style="cursor:pointer" onclick="ledger(\''+a.id+'\')"><div>'+esc(a.name)+'<em>'+a.type+(a.is_party?' • Party':'')+'</em></div><b>'+inr(a.net)+'</b></div>';
+  }).join('');
+  else m.innerHTML = reports(b);
+}
+function vcard(v, del){
+  return '<div class="card item"><div><span class="tag">'+v.type+' • '+fdate(v.date)+'</span>'+
+    '<div style="font-weight:700;margin-top:3px">'+esc(nameOf(v.debit_id))+' → '+esc(nameOf(v.credit_id))+'</div>'+
+    (v.narration ? '<em>'+esc(v.narration)+'</em>' : '')+'</div>'+
+    '<div style="text-align:right"><b>'+inr(v.amount)+'</b>'+(del ? '<br><button class="btn ghost sm" style="margin-top:6px" onclick="delV(\''+v.id+'\')">Delete</button>' : '')+'</div></div>';
+}
+function home(b){
+  var cb = sum(b.filter(function(a){return a.type==='ASSET' && !a.is_party && /cash|bank/i.test(a.name)}));
+  var rec = sum(b.filter(function(a){return a.type==='ASSET' && a.is_party}));
+  var pay = sum(b.filter(function(a){return a.type==='LIABILITY' && a.is_party}));
+  var inc = sum(b.filter(function(a){return a.type==='INCOME'})), exp = sum(b.filter(function(a){return a.type==='EXPENSE'}));
+  return '<div class="hero"><small>Cash + Bank</small><h2>'+inr(cb)+'</h2><small>Profit: '+inr(inc-exp)+'</small></div>'+
+  '<div class="g2"><div class="card"><div class="lbl">Lena baki</div><div class="big up">'+inr(rec)+'</div></div>'+
+  '<div class="card"><div class="lbl">Dena baki</div><div class="big down">'+inr(pay)+'</div></div>'+
+  '<div class="card"><div class="lbl">Income</div><div class="big up">'+inr(inc)+'</div></div>'+
+  '<div class="card"><div class="lbl">Expense</div><div class="big down">'+inr(exp)+'</div></div></div>'+
+  '<h3>Recent entries</h3>' + (vouchers.length ? vouchers.slice(0,8).map(function(v){return vcard(v,false)}).join('') : '<div class="empty">＋ dabakar pehli entry daalo.</div>');
+}
+
+/* reports */
+function reports(b){
+  var tabs = [['tb','Trial Balance'],['pl','Profit & Loss'],['bs','Balance Sheet']];
+  var h = '<div class="tabs">'+tabs.map(function(t){return '<button class="'+(rtab===t[0]?'on':'')+'" onclick="setR(\''+t[0]+'\')">'+t[1]+'</button>'}).join('')+'</div><div class="card">';
+  function L(a,v,bold){ return '<div class="ln '+(bold?'b':'')+'"><span>'+esc(a)+'</span><span>'+v+'</span></div>'; }
+  var f = function(t){ return b.filter(function(a){return a.type===t}); };
+  if (rtab === 'tb') {
+    var dr = 0, cr = 0;
+    h += L('Account','Debit | Credit',true);
+    b.forEach(function(a){ if (a.dr >= 0) { dr += a.dr; h += L(a.name, inr(a.dr)+' | -'); } else { cr += -a.dr; h += L(a.name, '- | '+inr(-a.dr)); } });
+    h += L('Total', inr(dr)+' | '+inr(cr), true);
+  } else if (rtab === 'pl') {
+    var inc = f('INCOME'), exp = f('EXPENSE'), p = sum(inc) - sum(exp);
+    h += '<b>Income</b>' + inc.map(function(a){return L(a.name, inr(a.net))}).join('') + L('Total Income', inr(sum(inc)), true);
+    h += '<br><b>Expenses</b>' + exp.map(function(a){return L(a.name, inr(a.net))}).join('') + L('Total Expenses', inr(sum(exp)), true);
+    h += L(p >= 0 ? 'Net Profit' : 'Net Loss', '<span class="'+(p>=0?'up':'down')+'">'+inr(p)+'</span>', true);
+  } else {
+    var A = f('ASSET'), Li = f('LIABILITY'), C = f('CAPITAL');
+    var pr = sum(f('INCOME')) - sum(f('EXPENSE'));
+    h += '<b>Assets</b>' + A.map(function(a){return L(a.name, inr(a.net))}).join('') + L('Total Assets', inr(sum(A)), true);
+    h += '<br><b>Liabilities</b>' + Li.map(function(a){return L(a.name, inr(a.net))}).join('');
+    h += '<br><b>Capital</b>' + C.map(function(a){return L(a.name, inr(a.net))}).join('') + L(pr>=0?'Current Profit':'Current Loss', inr(pr));
+    h += L('Total Liabilities + Capital', inr(sum(Li)+sum(C)+pr), true);
+  }
+  return h + '</div>';
+}
+
+/* modals */
+function modal(html){ closeM(); var d=document.createElement('div'); d.className='modal'; d.id='mdl'; d.onclick=function(e){if(e.target===d)closeM()}; d.innerHTML='<div class="sheet">'+html+'</div>'; document.body.appendChild(d); }
+function closeM(){ var m=$('#mdl'); if(m) m.remove(); }
+function opts(){ return '<option value="">-- chuno --</option>' + accounts.map(function(a){return '<option value="'+a.id+'">'+esc(a.name)+'</option>'}).join(''); }
+
+function openAdd(){ if (tab === 'accounts') addAccountModal(); else addVoucherModal(); }
+
+function addVoucherModal(){
+  modal('<h3>Nayi Entry</h3>'+
+  '<label>Voucher type<select id="vt" onchange="vtChange()">'+VTYPES.map(function(t){return '<option>'+t+'</option>'}).join('')+'</select></label>'+
+  '<label><span id="dl">'+LABELS.Receipt[0]+'</span><select id="vd">'+opts()+'</select></label>'+
+  '<label><span id="cl">'+LABELS.Receipt[1]+'</span><select id="vc">'+opts()+'</select></label>'+
+  '<label>Amount<input id="va" type="number" min="0" step="0.01" inputmode="decimal"></label>'+
+  '<label>Date<input id="vdt" type="date" value="'+new Date().toISOString().slice(0,10)+'"></label>'+
+  '<label>Narration (optional)<input id="vn"></label>'+
+  '<div class="err" id="verr"></div>'+
+  '<div class="row"><button class="btn ghost" onclick="closeM()">Cancel</button><button class="btn" onclick="saveV()">Save</button></div>');
+}
+function vtChange(){
+  var l = LABELS[$('#vt').value];
+  $('#dl').textContent = l[0]; $('#cl').textContent = l[1];
+  $('#vd').value = ''; $('#vc').value = '';
+}
+async function saveV(){
+  var debit_id = $('#vd').value, credit_id = $('#vc').value, amount = parseFloat($('#va').value);
+  var err = function(m){ $('#verr').textContent = m; };
+  if (!debit_id || !credit_id) return err('Dono account chuno');
+  if (debit_id === credit_id) return err('Debit aur Credit alag hone chahiye');
+  if (!(amount > 0)) return err('Amount sahi daalo');
+  var r = await sb.from('vouchers').insert({
+    type: $('#vt').value, debit_id: debit_id, credit_id: credit_id, amount: amount, date: $('#vdt').value, narration: $('#vn').value.trim()
+  });
+  if (r.error) return err(r.error.message);
+  closeM(); toast('Entry save ho gayi'); load();
+}
+async function delV(id){
+  if (!confirm('Ye entry delete karni hai?')) return;
+  var r = await sb.from('vouchers').delete().eq('id', id);
+  if (r.error) return toast(r.error.message);
+  load();
+}
+function addAccountModal(){
+  modal('<h3>Naya Account / Party</h3>'+
+  '<label>Naam<input id="an"></label>'+
+  '<label>Type<select id="at">'+TYPES.map(function(t){return '<option>'+t+'</option>'}).join('')+'</select></label>'+
+  '<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="ap" style="width:auto;margin:0"> Customer / Supplier (Party)</label>'+
+  '<label>Opening balance<input id="ao" type="number" min="0" step="0.01" inputmode="decimal"></label>'+
+  '<div class="err" id="aerr2"></div>'+
+  '<div class="row"><button class="btn ghost" onclick="closeM()">Cancel</button><button class="btn" onclick="saveA()">Save</button></div>');
+}
+async function saveA(){
+  var name = $('#an').value.trim();
+  if (!name) return $('#aerr2').textContent = 'Naam daalo';
+  var r = await sb.from('accounts').insert({
+    name: name, type: $('#at').value, is_party: $('#ap').checked, opening: parseFloat($('#ao').value) || 0
+  });
+  if (r.error) return $('#aerr2').textContent = r.error.message;
+  closeM(); load();
+}
+function ledger(id){
+  var a = balances().find(function(x){return x.id === id});
+  var list = vouchers.filter(function(v){return v.debit_id===id || v.credit_id===id}).sort(function(x,y){return x.date.localeCompare(y.date)});
+  modal('<h3>Ledger: '+esc(a.name)+'</h3>'+
+  '<div class="ln"><span>Opening</span><span>'+inr(a.opening)+'</span></div>'+
+  list.map(function(v){ var d = v.debit_id===id; return '<div class="ln"><span>'+fdate(v.date)+' • '+(d?'Dr':'Cr')+' • '+esc(nameOf(d?v.credit_id:v.debit_id))+'</span><span>'+inr(v.amount)+'</span></div>'; }).join('')+
+  '<div class="ln b"><span>Closing</span><span>'+inr(a.net)+'</span></div>'+
+  '<div class="row"><button class="btn" onclick="closeM()">Close</button></div>');
+}
+
+/* start */
+if (sb) {
+  sb.auth.getSession().then(function(r){
+    if (r.data && r.data.session) enter(); else showAuth();
+  }).catch(function(e){ showAuth(e.message); });
+}
+</script>
+</body>
+</html>
