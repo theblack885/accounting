@@ -1,4 +1,0 @@
-window.APP_CONFIG = {
-  SUPABASE_URL: "https://APNA-PROJECT-ID.supabase.co",
-  SUPABASE_ANON_KEY: "APNI-ANON-YA-PUBLISHABLE-KEY"
-};
